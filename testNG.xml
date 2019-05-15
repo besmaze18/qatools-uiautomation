@@ -1,0 +1,5 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+
+<suite thread-count="5" verbose="1" name="TestSuite" annotations="JDK" parallel="tests">
+
+</suite>

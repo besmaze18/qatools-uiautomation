@@ -1,0 +1,1 @@
+﻿awaiter( arguments[0], arguments[1], isElementVisible, { ReturnCallback: arguments[arguments.length - 1] });

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+
+  <property name="LOG_FILE_NAME" value="/Users/beslanatabaev/Downloads/log/selenium"/>
+
+  <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{5} - %msg%n ${LOG_FILE_NAME}</pattern>
+    </encoder>
+  </appender>
+
+  <logger name="io.sibur.lsd.lsd-testkit" level="TRACE">
+    <appender-ref ref="stdout" />
+  </logger>
+
+  <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_FILE_NAME}.log</file>
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <Pattern>
+        %d{dd-MM-yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
+      </Pattern>
+    </encoder>
+
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <!-- rollover daily -->
+      <fileNamePattern>${LOG_FILE_NAME}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+      <maxFileSize>10MB</maxFileSize>
+      <maxHistory>60</maxHistory>
+    </rollingPolicy>
+
+  </appender>
+
+  <root level="TRACE">
+    <appender-ref ref="stdout"/>
+    <appender-ref ref="file"/>
+  </root>
+
+</configuration>
