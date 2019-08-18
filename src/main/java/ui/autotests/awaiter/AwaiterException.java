@@ -1,4 +1,4 @@
-package io.sibur.uiautotests.awaiter;
+package ui.autotests.awaiter;
 
 import org.openqa.selenium.WebElement;
 

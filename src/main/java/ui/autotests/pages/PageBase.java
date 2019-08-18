@@ -1,6 +1,6 @@
-package io.sibur.uiautotests.pages;
+package ui.autotests.pages;
 
-import io.sibur.uiautotests.browsers.Browser;
+import ui.autotests.browsers.Browser;
 import org.openqa.selenium.support.How;
 
 /**

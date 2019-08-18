@@ -1,4 +1,4 @@
-package io.sibur.uiautotests.testbase;
+package ui.autotests.testbase;
 
 import org.testng.IRetryAnalyzer;
 import org.testng.ITestResult;

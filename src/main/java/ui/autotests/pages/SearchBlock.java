@@ -1,4 +1,4 @@
-package io.sibur.uiautotests.pages;
+package ui.autotests.pages;
 
 import org.openqa.selenium.support.FindBy;
 import ru.yandex.qatools.htmlelements.annotations.Name;

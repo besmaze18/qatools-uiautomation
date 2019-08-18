@@ -1,7 +1,7 @@
-package io.sibur.uiautotests.pageactions;
+package ui.autotests.pageactions;
 
-import io.sibur.uiautotests.browsers.Browser;
-import io.sibur.uiautotests.pages.PageBase;
+import ui.autotests.browsers.Browser;
+import ui.autotests.pages.PageBase;
 
 /**
  * Test project Page actions Base class

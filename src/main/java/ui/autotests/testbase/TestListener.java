@@ -1,7 +1,7 @@
-package io.sibur.uiautotests.testbase;
+package ui.autotests.testbase;
 
-import io.sibur.uiautotests.browsers.Browser;
-import io.sibur.uiautotests.browsers.WebDriverProperties;
+import ui.autotests.browsers.Browser;
+import ui.autotests.browsers.WebDriverProperties;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

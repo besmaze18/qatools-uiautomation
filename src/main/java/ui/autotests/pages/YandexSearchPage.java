@@ -1,9 +1,9 @@
-package io.sibur.uiautotests.pages;
+package ui.autotests.pages;
 
 import static org.openqa.selenium.support.How.XPATH;
 
-import io.sibur.uiautotests.browsers.Browser;
-import io.sibur.uiautotests.pageactions.YandexSearchPageActions;
+import ui.autotests.browsers.Browser;
+import ui.autotests.pageactions.YandexSearchPageActions;
 import org.openqa.selenium.support.How;
 
 /**

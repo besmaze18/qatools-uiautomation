@@ -1,10 +1,10 @@
-package io.sibur.uiautotests.pages;
+package ui.autotests.pages;
 
 import static org.openqa.selenium.support.How.XPATH;
 
-import io.sibur.uiautotests.browsers.Browser;
-import io.sibur.uiautotests.customelements.ListElement;
-import io.sibur.uiautotests.pageactions.YandexSearchResultPageActions;
+import ui.autotests.browsers.Browser;
+import ui.autotests.customelements.ListElement;
+import ui.autotests.pageactions.YandexSearchResultPageActions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
 

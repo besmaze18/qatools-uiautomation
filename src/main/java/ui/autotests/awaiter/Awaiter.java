@@ -1,7 +1,7 @@
-package io.sibur.uiautotests.awaiter;
+package ui.autotests.awaiter;
 
-import org.openqa.selenium.support.How;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.How;
 
 /**
  * This interface to implement ability to await {@link WebElement} by given selector

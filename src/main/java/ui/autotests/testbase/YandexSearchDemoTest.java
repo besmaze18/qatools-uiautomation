@@ -1,7 +1,7 @@
-package io.sibur.uiautotests.testbase;
+package ui.autotests.testbase;
 
-import io.sibur.uiautotests.pages.YandexSearchPage;
-import io.sibur.uiautotests.pages.YandexSearchResultPage;
+import ui.autotests.pages.YandexSearchPage;
+import ui.autotests.pages.YandexSearchResultPage;
 import org.testng.annotations.Test;
 
 public class YandexSearchDemoTest extends TestSuite {

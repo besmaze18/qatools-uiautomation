@@ -1,4 +1,4 @@
-package io.sibur.uiautotests.customelements;
+package ui.autotests.customelements;
 
 import java.util.Collections;
 import java.util.List;

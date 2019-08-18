@@ -1,4 +1,4 @@
-package io.sibur.uiautotests.browsers;
+package ui.autotests.browsers;
 
 import java.net.MalformedURLException;
 import java.net.URL;

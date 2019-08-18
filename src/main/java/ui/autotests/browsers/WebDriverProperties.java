@@ -1,4 +1,4 @@
-package io.sibur.uiautotests.browsers;
+package ui.autotests.browsers;
 
 import ru.yandex.qatools.properties.PropertyLoader;
 import ru.yandex.qatools.properties.annotations.Property;

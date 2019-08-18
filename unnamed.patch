@@ -1,0 +1,1244 @@
+Index: src/main/java/io/sibur/uiautotests/awaiter/Awaiter.java
+===================================================================
+--- src/main/java/io/sibur/uiautotests/awaiter/Awaiter.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
++++ src/main/java/io/sibur/uiautotests/awaiter/Awaiter.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
+@@ -1,12 +0,0 @@
+-package io.sibur.uiautotests.awaiter;
+-
+-import org.openqa.selenium.support.How;
+-import org.openqa.selenium.WebElement;
+-
+-/**
+- * This interface to implement ability to await {@link WebElement} by given selector
+- */
+-public interface Awaiter {
+-
+-    void await(How how, String using) throws AwaiterException;
+-}
+Index: src/main/java/io/sibur/uiautotests/awaiter/AwaiterBase.java
+===================================================================
+--- src/main/java/io/sibur/uiautotests/awaiter/AwaiterBase.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
++++ src/main/java/io/sibur/uiautotests/awaiter/AwaiterBase.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
+@@ -1,95 +0,0 @@
+-package io.sibur.uiautotests.awaiter;
+-
+-import java.io.File;
+-import java.io.IOException;
+-import java.util.Map;
+-import org.apache.commons.io.FileUtils;
+-import org.openqa.selenium.InvalidArgumentException;
+-import org.openqa.selenium.JavascriptExecutor;
+-import org.openqa.selenium.WebDriver;
+-import org.openqa.selenium.support.How;
+-import org.slf4j.Logger;
+-import org.slf4j.LoggerFactory;
+-
+-/**
+- * Mechanism used to locate elements and await it visibility using Javascript
+- */
+-public class AwaiterBase implements Awaiter {
+-
+-    private static final Logger logger = LoggerFactory.getLogger(AwaiterBase.class);
+-
+-    private String script;
+-    private WebDriver driver;
+-
+-    protected AwaiterBase(String actionScript, WebDriver driver) {
+-        String defaultScript = getScript("src/main/resources/awaiter-scipt-generic.js");
+-        String convertedActionScript = getScript(actionScript);
+-        this.driver = driver;
+-        script = defaultScript + convertedActionScript;
+-    }
+-
+-    /**
+-     * Get javascript file by file path
+-     *
+-     * @param filePath the path to Javascript file
+-     */
+-    public String getScript(String filePath) {
+-        File file = new File(filePath);
+-        String jsScript;
+-        try {
+-            jsScript = FileUtils.readFileToString(file, "UTF-8");
+-        } catch (IOException e) {
+-            logger.error(e.getMessage(), e);
+-            return null;
+-        }
+-        return jsScript;
+-    }
+-
+-    /**
+-     * await element display by executing javascript
+-     *
+-     * @param how the way to locate element
+-     * @param using the attribute value to locate element
+-     */
+-    @Override
+-    public void await(How how, String using) throws AwaiterException {
+-        JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
+-        if (jsExecutor == null) {
+-            throw new AwaiterException("Cannot execute js due to it not implementing {nameof(IJavaScriptExecutor)}");
+-        }
+-        Map<String, Boolean> result = (Map<String, Boolean>) doExecuteScript(how, using, jsExecutor, 0);
+-        Boolean actualResult = result.get("Result");
+-        if (!actualResult) {
+-            throw new AwaiterException("Result of element awaiting is invalid!");
+-        }
+-    }
+-
+-    /**
+-     * Get result of executed Javascript
+-     *
+-     * @param how the way to locate element
+-     * @param using the attribute value to locate element
+-     * @param jsExecutor Javascript executor
+-     *
+-     * @return Javascript file execution result
+-     */
+-    private Object doExecuteScript(How how, String using, JavascriptExecutor jsExecutor, int attempts)
+-            throws AwaiterException {
+-        if (attempts++ > 10) {
+-            throw new InvalidArgumentException(
+-                    "Document unloaded exception occured 10 times! It is not supposed to occure so much.");
+-        }
+-        Object result;
+-        try {
+-            String howStr = how.toString();
+-            result = jsExecutor.executeAsyncScript(script, howStr, using);
+-        } catch (Exception ex) {
+-            if (ex.getMessage().contains("document unloaded while waiting for result")) {
+-                result = doExecuteScript(how, using, jsExecutor, attempts);
+-            } else {
+-                throw new AwaiterException("Result of element awaiting is invalid!");
+-            }
+-        }
+-        return result;
+-    }
+-}
+Index: src/main/java/io/sibur/uiautotests/awaiter/AwaiterByVisibility.java
+===================================================================
+--- src/main/java/io/sibur/uiautotests/awaiter/AwaiterByVisibility.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
++++ src/main/java/io/sibur/uiautotests/awaiter/AwaiterByVisibility.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
+@@ -1,13 +0,0 @@
+-package io.sibur.uiautotests.awaiter;
+-
+-import org.openqa.selenium.WebDriver;
+-
+-/**
+- * Mechanism to await element visibility using Javascript file
+- */
+-public class AwaiterByVisibility extends AwaiterBase {
+-
+-    public AwaiterByVisibility(WebDriver driver) {
+-        super("src/main/resources/awaiter-script-byVisbility.js", driver);
+-    }
+-}
+Index: src/main/java/io/sibur/uiautotests/awaiter/AwaiterException.java
+===================================================================
+--- src/main/java/io/sibur/uiautotests/awaiter/AwaiterException.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
++++ src/main/java/io/sibur/uiautotests/awaiter/AwaiterException.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
+@@ -1,13 +0,0 @@
+-package io.sibur.uiautotests.awaiter;
+-
+-import org.openqa.selenium.WebElement;
+-
+-/**
+- * {@code AwaiterException} is the superclass of those
+- * exceptions that can be thrown during {@link WebElement} await
+- */
+-public class AwaiterException extends Exception {
+-    public AwaiterException(String message) {
+-        super(message);
+-    }
+-}
+\ No newline at end of file
+Index: src/main/java/io/sibur/uiautotests/browsers/Browser.java
+===================================================================
+--- src/main/java/io/sibur/uiautotests/browsers/Browser.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
++++ src/main/java/io/sibur/uiautotests/browsers/Browser.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
+@@ -1,187 +0,0 @@
+-package io.sibur.uiautotests.browsers;
+-
+-import io.sibur.uiautotests.awaiter.AwaiterByVisibility;
+-import io.sibur.uiautotests.pages.PageBase;
+-import java.io.File;
+-import org.openqa.selenium.Alert;
+-import org.openqa.selenium.By;
+-import org.openqa.selenium.JavascriptExecutor;
+-import org.openqa.selenium.OutputType;
+-import org.openqa.selenium.TakesScreenshot;
+-import org.openqa.selenium.WebDriver;
+-import org.openqa.selenium.WebElement;
+-import org.openqa.selenium.support.How;
+-import org.openqa.selenium.support.PageFactory;
+-import org.slf4j.Logger;
+-import org.slf4j.LoggerFactory;
+-import ru.yandex.qatools.htmlelements.loader.decorator.HtmlElementDecorator;
+-import ru.yandex.qatools.htmlelements.loader.decorator.HtmlElementLocatorFactory;
+-
+-/**
+- * This class encapsulates a {@link WebDriver} methods.
+- */
+-public class Browser {
+-
+-    protected WebDriver driver;
+-
+-    private static final Logger logger = LoggerFactory.getLogger(Browser.class);
+-
+-    public Browser(final WebDriver driver) {
+-        this.driver = driver;
+-    }
+-
+-    /**
+-     * The page class elements initialization.
+-     */
+-    public void init(PageBase pageObject) {
+-        PageFactory.initElements(new HtmlElementDecorator(new HtmlElementLocatorFactory(driver)), pageObject);
+-    }
+-
+-    /**
+-     * Quit Webdriver, close every associated window.
+-     */
+-    public void dispose() {
+-        logger.trace("Disposing of browser with current page title'{}'", driver.getTitle());
+-        driver.quit();
+-    }
+-
+-    /**
+-     * Maximize browser window.
+-     */
+-    public void maximize() {
+-        logger.trace("Started maximizing window");
+-        driver.manage().window().maximize();
+-        logger.trace("Finished maximizing window");
+-    }
+-
+-    /**
+-     * Take screenshot of current screen.
+-     */
+-    public File takeScreenShot() {
+-        return ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+-    }
+-
+-    /**
+-     * Refresh current screen.
+-     */
+-    public void refresh() {
+-        logger.trace("Started refresh on page with title '{}'", driver.getTitle());
+-        driver.navigate().refresh();
+-        logger.trace("Finished refresh on page with title '{}'", driver.getTitle());
+-    }
+-
+-    /**
+-     * Navigate to a given Url.
+-     *
+-     * @param url the Url to navigate to.
+-     */
+-    public void navigate(String url) {
+-        logger.trace("Started navigate on page with url '{}'", url);
+-        driver.navigate().to(url);
+-        logger.trace("Finished navigate, now on page with title '{}' with url '{}'", driver.getTitle(),
+-                driver.getCurrentUrl());
+-    }
+-
+-    /**
+-     * Get a string representing the current URL that the browser is looking at.
+-     *
+-     * @return The URL of the page currently loaded in the browser.
+-     */
+-    public String currentUrl() {
+-        return driver.getCurrentUrl();
+-    }
+-
+-    /**
+-     * Send future commands to a different frame or window.
+-     */
+-    public void switchTo() {
+-        logger.trace("Switching to other frame");
+-        driver.switchTo();
+-    }
+-
+-    /**
+-     * Switches to the currently active modal dialog for this particular driver instance and accepts it.
+-     */
+-    public void alertAccept() {
+-        Alert alert = driver.switchTo().alert();
+-        alert.accept();
+-    }
+-
+-    /**
+-     * Switch to a frame using its previously located {@link WebElement}.
+-     *
+-     * @param inlineFrame The frame element to switch to.
+-     */
+-    public void switchToFrame(WebElement inlineFrame) {
+-        WebElement found = driver.findElement(By.id(inlineFrame.getAttribute("id")));
+-        driver.switchTo().frame(found);
+-    }
+-
+-    /**
+-     * Switch to either the first frame on the page, or the main document when a page contains iframe.
+-     */
+-    public void switchToDefault() {
+-
+-        driver.switchTo().defaultContent();
+-    }
+-
+-    /**
+-     * Scroll to screen location using Javascript execution.
+-     *
+-     * @param xPosition The x coordinate to locate element.
+-     * @param yPosition The y coordinate to locate element.
+-     */
+-    public void scrollTo(int xPosition, int yPosition) {
+-        JavascriptExecutor javascriptExecutor = (JavascriptExecutor) driver;
+-        String js = "window.scrollTo({xPosition}, {yPosition})";
+-        javascriptExecutor.executeScript(js);
+-    }
+-
+-    /**
+-     * Scroll to {@link WebElement}.
+-     *
+-     * @param element The WebElement scroll to.
+-     */
+-    public void scrollToView(WebElement element) {
+-
+-        scrollTo(element.getLocation().x, element.getLocation().y - 100);
+-    }
+-
+-    /**
+-     * Authenticate via passing username and password parameters to URL.
+-     *
+-     * @param userName The username parameter.
+-     * @param userPassword The password parameter.
+-     * @param baseUrl The base Url parameter
+-     */
+-    public void basicAuthentication(String userName, String userPassword, String baseUrl) {
+-        String url = "http://" + userName + ":" + userPassword + "@" + baseUrl;
+-        navigate(url);
+-    }
+-
+-    /**
+-     * Check display and await element/elements using javascript by given selector
+-     *
+-     * @param how the way to locate element
+-     * @param usings the attribute value to locate element
+-     *
+-     * @return The boolean value of given elements display
+-     */
+-    public Boolean isOnPage(How how, String[] usings) {
+-
+-        AwaiterByVisibility awaiter = new AwaiterByVisibility(driver);
+-
+-        logger.trace("Started identity check on page by = '{}', using = '{}'", how, usings);
+-        for (String using : usings) {
+-            try {
+-                awaiter.await(how, using);
+-            } catch (Exception e) {
+-                logger.trace("Failed identity check on page by = '{}', using = '{}'", how, usings);
+-                return false;
+-            }
+-        }
+-        logger.trace("Successfully finished identity check on page by = '{}', using = '{}'", how, usings);
+-        return true;
+-    }
+-}
+-
+Index: src/main/java/io/sibur/uiautotests/browsers/BrowserFactory.java
+===================================================================
+--- src/main/java/io/sibur/uiautotests/browsers/BrowserFactory.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
++++ src/main/java/io/sibur/uiautotests/browsers/BrowserFactory.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
+@@ -1,144 +0,0 @@
+-package io.sibur.uiautotests.browsers;
+-
+-import java.net.MalformedURLException;
+-import java.net.URL;
+-import java.util.HashMap;
+-import java.util.Map;
+-import java.util.Map.Entry;
+-import org.apache.commons.lang3.NotImplementedException;
+-import org.openqa.selenium.WebDriver;
+-import org.openqa.selenium.chrome.ChromeDriver;
+-import org.openqa.selenium.chrome.ChromeDriverService;
+-import org.openqa.selenium.chrome.ChromeOptions;
+-import org.openqa.selenium.firefox.FirefoxDriver;
+-import org.openqa.selenium.firefox.FirefoxOptions;
+-import org.openqa.selenium.ie.InternetExplorerDriver;
+-import org.openqa.selenium.ie.InternetExplorerOptions;
+-import org.openqa.selenium.remote.DesiredCapabilities;
+-import org.openqa.selenium.remote.RemoteWebDriver;
+-import org.openqa.selenium.safari.SafariDriver;
+-import org.slf4j.Logger;
+-import org.slf4j.LoggerFactory;
+-import ru.yandex.qatools.properties.annotations.Resource;
+-
+-/**
+- * A Browser Factory class that implements and controls {@link ChromeDriver}, {@link FirefoxDriver}, {@link
+- * InternetExplorerDriver} and {@link SafariDriver} running on the local/remote machines.
+- */
+-@Resource.Classpath("webdriver.properties")
+-public class BrowserFactory {
+-
+-    private static final Logger logger = LoggerFactory.getLogger(Browser.class);
+-
+-    private static WebDriverProperties webDriverProperties = new WebDriverProperties();
+-    private static String browserName = webDriverProperties.getBrowserType();
+-    private static String isRemoteProperty = webDriverProperties.getIsRemote();
+-
+-    private static Map<String, WebDriver> drivers = new HashMap<>();
+-    private static final ThreadLocal<RemoteWebDriver> threadDriver = new ThreadLocal<>();
+-
+-    /**
+-     * Get Webdriver by Browser name.
+-     *
+-     * @return Webdriver instance of given Browser.
+-     */
+-    public static WebDriver getDriver() throws MalformedURLException {
+-
+-        switch (browserName) {
+-            case "Firefox":
+-                return startFirefox();
+-            case "IE":
+-                return startIE();
+-            case "Safari":
+-                return startSafari();
+-            default:
+-                return startChrome();
+-        }
+-    }
+-
+-    /**
+-     * Get Browser.
+-     *
+-     * @return Browser instance.
+-     */
+-    public static Browser getBrowser() throws MalformedURLException {
+-        logger.info("Creating new browser of type '{}' isRemote:{}", browserName, isRemoteProperty);
+-        return new Browser(getDriver()) {
+-        };
+-    }
+-
+-    /**
+-     * Start Chrome browser depending on parameters passed by webdriver.properties file.
+-     *
+-     * @return ChromeDriver or RemoteDriver depending on passed parameters.
+-     */
+-    public static WebDriver startChrome() throws MalformedURLException {
+-        ChromeOptions options = new ChromeOptions();
+-        options.addArguments(webDriverProperties.getDriverAdditionalOptions());
+-        Boolean isRemote = Boolean.valueOf(isRemoteProperty);
+-
+-        if (isRemote) {
+-            String remoteUrl = webDriverProperties.getRemoteUrl();
+-            DesiredCapabilities dc = DesiredCapabilities.chrome();
+-            dc.setCapability(ChromeOptions.CAPABILITY, options);
+-            URL url = new URL(remoteUrl);
+-            threadDriver.set(new RemoteWebDriver(url, DesiredCapabilities.chrome()));
+-            return threadDriver.get();
+-        }
+-        ChromeDriverService service = ChromeDriverService.createDefaultService();
+-        return new ChromeDriver(service, options);
+-    }
+-
+-    /**
+-     * Start Firefox browser
+-     *
+-     * @return {@link FirefoxDriver}
+-     */
+-    public static WebDriver startFirefox() {
+-        String isRemoteProperty = webDriverProperties.getIsRemote();
+-        Boolean isRemote = Boolean.valueOf(isRemoteProperty);
+-        if (isRemote) {
+-            throw new NotImplementedException("remote ie browser is not currently supported");
+-        }
+-        return new FirefoxDriver(new FirefoxOptions());
+-    }
+-
+-    /**
+-     * Start Safari browser
+-     *
+-     * @return {@link SafariDriver}
+-     */
+-    public static WebDriver startSafari() {
+-        String isRemoteProperty = webDriverProperties.getIsRemote();
+-        Boolean isRemote = Boolean.valueOf(isRemoteProperty);
+-        if (isRemote) {
+-            throw new NotImplementedException("remote safari browser is not currently supported");
+-        }
+-        return new SafariDriver();
+-    }
+-
+-    /**
+-     * Start Internet Explorer browser
+-     *
+-     * @return {@link InternetExplorerDriver}
+-     */
+-    public static WebDriver startIE() {
+-        String isRemoteProperty = webDriverProperties.getIsRemote();
+-        Boolean isRemote = Boolean.valueOf(isRemoteProperty);
+-        if (isRemote) {
+-            throw new NotImplementedException("remote ie browser is not currently supported");
+-        }
+-        InternetExplorerOptions internetExplorerOptions = new InternetExplorerOptions();
+-        return new InternetExplorerDriver(internetExplorerOptions);
+-    }
+-
+-    /**
+-     * Dispose all drivers
+-     */
+-    public void dispose() {
+-        for (Entry<String, WebDriver> stringWebDriverEntry : drivers.entrySet()) {
+-            stringWebDriverEntry.getValue().close();
+-            stringWebDriverEntry.getValue().quit();
+-        }
+-    }
+-}
+Index: src/main/java/io/sibur/uiautotests/browsers/WebDriverProperties.java
+===================================================================
+--- src/main/java/io/sibur/uiautotests/browsers/WebDriverProperties.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
++++ src/main/java/io/sibur/uiautotests/browsers/WebDriverProperties.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
+@@ -1,113 +0,0 @@
+-package io.sibur.uiautotests.browsers;
+-
+-import ru.yandex.qatools.properties.PropertyLoader;
+-import ru.yandex.qatools.properties.annotations.Property;
+-import ru.yandex.qatools.properties.annotations.Resource;
+-
+-/**
+- * This class gets parameters from webdriver.properties file
+- */
+-@Resource.Classpath("webdriver.properties")
+-public class WebDriverProperties {
+-
+-    @Property("isRemote")
+-    private String isRemote;
+-
+-    @Property("driverAdditionalOptions")
+-    private String driverAdditionalOptions;
+-
+-    @Property("remoteUrl")
+-    private String remoteUrl;
+-
+-    @Property("baseUrl")
+-    private String baseUrl;
+-
+-    @Property("login")
+-    private String login;
+-
+-    @Property("password")
+-    private String password;
+-
+-    @Property("browserType")
+-    private String browserType;
+-
+-    @Property("screenshotPath")
+-    private String screenshotPath;
+-
+-    public WebDriverProperties() {
+-
+-        PropertyLoader.populate(this);
+-    }
+-
+-    /**
+-     * Get isRemote parameter value from webdriver.properties file
+-     *
+-     * @return String value of isRemote parameter
+-     */
+-    public String getIsRemote() {
+-        return isRemote;
+-    }
+-
+-    /**
+-     * Get additional WebDriver options from webdriver.properties file
+-     *
+-     * @return String value of additional WebDriver options
+-     */
+-    public String getDriverAdditionalOptions() {
+-        return driverAdditionalOptions;
+-    }
+-
+-    /**
+-     * Get URL of remote machine from webdriver.properties file
+-     *
+-     * @return String value of remote URL
+-     */
+-    public String getRemoteUrl() {
+-        return remoteUrl;
+-    }
+-
+-    /**
+-     * Get Browser type from webdriver.properties file
+-     *
+-     * @return String value of Browser type
+-     */
+-    public String getBrowserType() {
+-        return browserType;
+-    }
+-
+-    /**
+-     * Get base URL of app under test from webdriver.properties file
+-     *
+-     * @return String value of base URL
+-     */
+-    public String getBaseUrl() {
+-        return baseUrl;
+-    }
+-
+-    /**
+-     * Get username for tested app from webdriver.properties file
+-     *
+-     * @return String value of username
+-     */
+-    public String getLogin() {
+-        return login;
+-    }
+-
+-    /**
+-     * Get password for tested app from webdriver.properties file
+-     *
+-     * @return String value of password
+-     */
+-    public String getPassword() {
+-        return password;
+-    }
+-
+-    /**
+-     * Get file path for screenshot save from webdriver.properties file
+-     *
+-     * @return String value of file path for screenshot save
+-     */
+-    public String getScreenshotPath() {
+-        return screenshotPath;
+-    }
+-}
+Index: src/main/java/io/sibur/uiautotests/customelements/ListElement.java
+===================================================================
+--- src/main/java/io/sibur/uiautotests/customelements/ListElement.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
++++ src/main/java/io/sibur/uiautotests/customelements/ListElement.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
+@@ -1,78 +0,0 @@
+-package io.sibur.uiautotests.customelements;
+-
+-import java.util.Collections;
+-import java.util.List;
+-import java.util.Optional;
+-import org.openqa.selenium.By;
+-import org.openqa.selenium.NoSuchElementException;
+-import org.openqa.selenium.WebElement;
+-import ru.yandex.qatools.htmlelements.element.TypifiedElement;
+-
+-/**
+- * This class implements methods for {@link List} of {@link WebElement}
+- */
+-public class ListElement extends TypifiedElement {
+-    public ListElement(WebElement wrappedElement) {
+-        super(wrappedElement);
+-    }
+-
+-    /**
+-     * Get {@link WebElement} from {@link List} by element attribute.
+-     *
+-     * @param selector CSS selector value.
+-     * @param attribute the attribute value to get {@link WebElement} from List.
+-     * @param expectedText expected attribute value.
+-     *
+-     * @return {@link WebElement} by given attribute.
+-     */
+-    public WebElement getElementFromListByAttributeValue(String selector, String attribute, String expectedText) {
+-        List<WebElement> list = getList(selector);
+-        Optional<WebElement> element = list != null ? list.stream()
+-                .filter(x -> x.getAttribute(attribute).contains(expectedText))
+-                .findFirst() : Optional.empty();
+-        return element.orElse(null);
+-    }
+-
+-    /**
+-     * Get element from {@link List} by {@link WebElement} text value.
+-     *
+-     * @param selector CSS selector value.
+-     * @param expectedText expected {@link WebElement} text value.
+-     *
+-     * @return {@link WebElement} by given text value.
+-     */
+-    public WebElement getElementFromListByTextValue(String selector, String expectedText) {
+-        List<WebElement> list = getList(selector);
+-        Optional<WebElement> element = list != null ? list.stream()
+-                .filter(x -> x.getText().equalsIgnoreCase(expectedText))
+-                .findFirst() : Optional.empty();
+-        return element.orElse(null);
+-    }
+-
+-    /**
+-     * Get {@link WebElement} from {@link List} by number
+-     *
+-     * @param selector CSS selector value.
+-     * @param expectedNumber the int value of {@link WebElement} from {@link List}
+-     */
+-    public WebElement getElementByNumber(String selector, int expectedNumber) {
+-        List<WebElement> list = getList(selector);
+-        return list != null ? list.get(expectedNumber) : null;
+-    }
+-
+-    /**
+-     * Get {@link List} by CSS selector.
+-     *
+-     * @param selector CSS selector value.
+-     *
+-     * @return {@link List} of {@link WebElement} by given CSS selector.
+-     */
+-    private List<WebElement> getList(String selector) {
+-        try {
+-            return getWrappedElement().findElements(By.cssSelector(selector));
+-        } catch (NoSuchElementException e) {
+-            return Collections.emptyList();
+-        }
+-    }
+-}
+-
+Index: src/main/java/io/sibur/uiautotests/pageactions/PageActionsBase.java
+===================================================================
+--- src/main/java/io/sibur/uiautotests/pageactions/PageActionsBase.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
++++ src/main/java/io/sibur/uiautotests/pageactions/PageActionsBase.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
+@@ -1,7 +0,0 @@
+-package io.sibur.uiautotests.pageactions;
+-
+-/**
+- * This is Base Class for Page actions
+- */
+-public interface PageActionsBase {
+-}
+Index: src/main/java/io/sibur/uiautotests/pageactions/YandexMainPageActions.java
+===================================================================
+--- src/main/java/io/sibur/uiautotests/pageactions/YandexMainPageActions.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
++++ src/main/java/io/sibur/uiautotests/pageactions/YandexMainPageActions.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
+@@ -1,19 +0,0 @@
+-package io.sibur.uiautotests.pageactions;
+-
+-import io.sibur.uiautotests.browsers.Browser;
+-import io.sibur.uiautotests.pages.PageBase;
+-
+-/**
+- * Test project Page actions Base class
+- */
+-public class YandexMainPageActions<T extends PageBase> implements PageActionsBase {
+-
+-    protected T page;
+-    protected Browser browser;
+-
+-    protected YandexMainPageActions(Browser browser, T page)
+-    {
+-        this.browser = browser;
+-        this.page = page;
+-    }
+-}
+Index: src/main/java/io/sibur/uiautotests/pageactions/YandexSearchPageActions.java
+===================================================================
+--- src/main/java/io/sibur/uiautotests/pageactions/YandexSearchPageActions.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
++++ src/main/java/io/sibur/uiautotests/pageactions/YandexSearchPageActions.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
+@@ -1,22 +0,0 @@
+-package io.sibur.uiautotests.pageactions;
+-
+-import io.sibur.uiautotests.browsers.Browser;
+-import io.sibur.uiautotests.pages.YandexSearchPage;
+-import io.sibur.uiautotests.pages.YandexSearchResultPage;
+-
+-/**
+- * This class implements methods on Yandex search page
+- */
+-public class YandexSearchPageActions extends YandexMainPageActions<YandexSearchPage> {
+-    public YandexSearchPageActions(Browser browser, YandexSearchPage yandexSearchPage) {
+-        super(browser, yandexSearchPage);
+-    }
+-
+-    public YandexSearchResultPage searchByText(String expectedText){
+-        page.searchBlock.searchInput.sendKeys(expectedText);
+-        page.searchBlock.searchButton.click();
+-        YandexSearchResultPage yandexSearchResultPage = new YandexSearchResultPage(browser);
+-        yandexSearchResultPage.isOnCurrentPage(YandexSearchResultPage.HOW, YandexSearchResultPage.USING);
+-        return yandexSearchResultPage;
+-    }
+-}
+Index: src/main/java/io/sibur/uiautotests/pageactions/YandexSearchResultPageActions.java
+===================================================================
+--- src/main/java/io/sibur/uiautotests/pageactions/YandexSearchResultPageActions.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
++++ src/main/java/io/sibur/uiautotests/pageactions/YandexSearchResultPageActions.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
+@@ -1,23 +0,0 @@
+-package io.sibur.uiautotests.pageactions;
+-
+-import io.sibur.uiautotests.browsers.Browser;
+-import io.sibur.uiautotests.pages.YandexSearchResultPage;
+-import org.openqa.selenium.By;
+-import org.openqa.selenium.WebElement;
+-import org.testng.Assert;
+-
+-/**
+- * This class implements methods on Yandex search result page
+- */
+-public class YandexSearchResultPageActions extends YandexMainPageActions<YandexSearchResultPage> {
+-
+-    public YandexSearchResultPageActions(Browser browser, YandexSearchResultPage yandexSearchResultPage) {
+-        super(browser, yandexSearchResultPage);
+-    }
+-
+-    public void checkSearchTopResult(){
+-        WebElement searchTopResult = page.searchResultList.getElementByNumber("li", 0);
+-        WebElement urlText = searchTopResult.findElement(By.cssSelector("div.organic__url-text"));
+-        Assert.assertTrue(urlText.getText().contains("СИБУР"), "Search top result is incorrect");
+-    }
+-}
+Index: src/main/java/io/sibur/uiautotests/pages/PageBase.java
+===================================================================
+--- src/main/java/io/sibur/uiautotests/pages/PageBase.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
++++ src/main/java/io/sibur/uiautotests/pages/PageBase.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
+@@ -1,32 +0,0 @@
+-package io.sibur.uiautotests.pages;
+-
+-import io.sibur.uiautotests.browsers.Browser;
+-import org.openqa.selenium.support.How;
+-
+-/**
+- * This is Base class for Pages
+- */
+-public abstract class PageBase {
+-
+-    protected Browser browser;
+-
+-    /**
+-     * {@link Browser} and Page initialization
+-     */
+-    protected PageBase(Browser browser) {
+-        this.browser = browser;
+-        this.browser.init(this);
+-    }
+-
+-    /**
+-     * Check display and await element/elements using javascript by given selector
+-     *
+-     * @param how the way to locate element
+-     * @param using the attribute value to locate element
+-     *
+-     * @return The boolean value of given elements display
+-     */
+-    public Boolean isOnCurrentPage(How how, String[] using) {
+-        return browser.isOnPage(how, using);
+-    }
+-}
+Index: src/main/java/io/sibur/uiautotests/pages/SearchBlock.java
+===================================================================
+--- src/main/java/io/sibur/uiautotests/pages/SearchBlock.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
++++ src/main/java/io/sibur/uiautotests/pages/SearchBlock.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
+@@ -1,20 +0,0 @@
+-package io.sibur.uiautotests.pages;
+-
+-import org.openqa.selenium.support.FindBy;
+-import ru.yandex.qatools.htmlelements.annotations.Name;
+-import ru.yandex.qatools.htmlelements.element.HtmlElement;
+-import ru.yandex.qatools.htmlelements.element.TextInput;
+-
+-/**
+- * Block contains reusable Yandex search block
+- */
+-@Name("Search Block")
+-@FindBy(xpath = "//form[contains(@class,'search2')]")
+-public class SearchBlock extends HtmlElement {
+-
+-    @FindBy(xpath ="//div[@class='search2__input']//input[@class='input__control input__input']")
+-    public TextInput searchInput;
+-
+-    @FindBy(xpath ="//div[@class='search2__button']/button")
+-    public TextInput searchButton;
+-}
+Index: src/main/java/io/sibur/uiautotests/pages/YandexMainPage.java
+===================================================================
+--- src/main/java/io/sibur/uiautotests/pages/YandexMainPage.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
++++ src/main/java/io/sibur/uiautotests/pages/YandexMainPage.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
+@@ -1,14 +0,0 @@
+-package io.sibur.uiautotests.pages;
+-
+-import io.sibur.uiautotests.browsers.Browser;
+-
+-/**
+- * Base class for Pages and for blocks initialization
+- */
+-public abstract class YandexMainPage extends PageBase{
+-    protected YandexMainPage(Browser browser) {
+-        super(browser);
+-    }
+-
+-    public SearchBlock searchBlock;
+-}
+Index: src/main/java/io/sibur/uiautotests/pages/YandexSearchPage.java
+===================================================================
+--- src/main/java/io/sibur/uiautotests/pages/YandexSearchPage.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
++++ src/main/java/io/sibur/uiautotests/pages/YandexSearchPage.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
+@@ -1,27 +0,0 @@
+-package io.sibur.uiautotests.pages;
+-
+-import static org.openqa.selenium.support.How.XPATH;
+-
+-import io.sibur.uiautotests.browsers.Browser;
+-import io.sibur.uiautotests.pageactions.YandexSearchPageActions;
+-import org.openqa.selenium.support.How;
+-
+-/**
+- * This class describes Yandex Search Page elements
+- */
+-public class YandexSearchPage extends YandexMainPage {
+-
+-    public YandexSearchPage(Browser browser) {
+-        super(browser);
+-        actions = new YandexSearchPageActions(this.browser, this);
+-    }
+-
+-    public YandexSearchPageActions actions;
+-
+-    /**
+-     * elements for page identification and page loading awaiter
+-     */
+-    public static final How HOW = XPATH;
+-    public static final String[] USING = {"//div[@class='home-arrow__tabs']",
+-            "//div[contains(@class,'container__heap container__line')]"};
+-}
+Index: src/main/java/io/sibur/uiautotests/pages/YandexSearchResultPage.java
+===================================================================
+--- src/main/java/io/sibur/uiautotests/pages/YandexSearchResultPage.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
++++ src/main/java/io/sibur/uiautotests/pages/YandexSearchResultPage.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
+@@ -1,30 +0,0 @@
+-package io.sibur.uiautotests.pages;
+-
+-import static org.openqa.selenium.support.How.XPATH;
+-
+-import io.sibur.uiautotests.browsers.Browser;
+-import io.sibur.uiautotests.customelements.ListElement;
+-import io.sibur.uiautotests.pageactions.YandexSearchResultPageActions;
+-import org.openqa.selenium.support.FindBy;
+-import org.openqa.selenium.support.How;
+-
+-/**
+- *  * This class describes Yandex Search Results Page elements
+- */
+-public class YandexSearchResultPage extends YandexMainPage{
+-    public YandexSearchResultPage(Browser browser) {
+-        super(browser);
+-        actions = new YandexSearchResultPageActions(this.browser, this);
+-    }
+-
+-    public YandexSearchResultPageActions actions;
+-
+-    /**
+-     * elements for page identification and page loading awaiter
+-     */
+-    public static final How HOW = XPATH;
+-    public static final String[] USING = {"//ul[@aria-label='Результаты поиска']", "//div[@class='navigation__region']"};
+-
+-    @FindBy(xpath = "//ul[@aria-label='Результаты поиска']")
+-    public ListElement searchResultList;
+-}
+Index: src/main/java/io/sibur/uiautotests/testbase/RetryAnalyzer.java
+===================================================================
+--- src/main/java/io/sibur/uiautotests/testbase/RetryAnalyzer.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
++++ src/main/java/io/sibur/uiautotests/testbase/RetryAnalyzer.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
+@@ -1,29 +0,0 @@
+-package io.sibur.uiautotests.testbase;
+-
+-import org.testng.IRetryAnalyzer;
+-import org.testng.ITestResult;
+-
+-/**
+- * This class implements ability to retry failed tests
+- */
+-public class RetryAnalyzer implements IRetryAnalyzer {
+-
+-    private int retryCount = 0;
+-    private static final int MAX_RETRY_COUNT = 3;
+-
+-    /**
+-     * Retry failed test
+-     *
+-     * @param result test execution result
+-     *
+-     * @return boolean value depending on test retry result
+-     */
+-    @Override
+-    public boolean retry(ITestResult result) {
+-        if (retryCount < MAX_RETRY_COUNT) {
+-            retryCount++;
+-            return true;
+-        }
+-        return false;
+-    }
+-}
+Index: src/main/java/io/sibur/uiautotests/testbase/TestListener.java
+===================================================================
+--- src/main/java/io/sibur/uiautotests/testbase/TestListener.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
++++ src/main/java/io/sibur/uiautotests/testbase/TestListener.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
+@@ -1,157 +0,0 @@
+-package io.sibur.uiautotests.testbase;
+-
+-import io.sibur.uiautotests.browsers.Browser;
+-import io.sibur.uiautotests.browsers.WebDriverProperties;
+-import java.io.File;
+-import java.text.DateFormat;
+-import java.text.SimpleDateFormat;
+-import java.util.Date;
+-import org.apache.commons.io.FileUtils;
+-import org.slf4j.Logger;
+-import org.slf4j.LoggerFactory;
+-import org.testng.ITestContext;
+-import org.testng.ITestListener;
+-import org.testng.ITestResult;
+-import org.testng.annotations.Test;
+-import ru.yandex.qatools.properties.annotations.Resource;
+-import testrail.TestRail;
+-import testrail.TestRailProperties;
+-import testrail.yandexdrive.YandexApiServiceClient;
+-import testrail.yandexdrive.YandexApiServiceGenerator;
+-import testrail.yandexdrive.YandexApiUploadFilesServiceController;
+-
+-/**
+- * This class implements listener for test running
+- */
+-@Resource.Classpath({"webdriver.properties", "testrail.properties", "postgresql.properties"})
+-public class TestListener implements ITestListener {
+-
+-    private Browser browser;
+-
+-    //get testrail properties
+-    private static TestRailProperties testRailProperties = new TestRailProperties();
+-    private static final String TESTRAIL_RUN = testRailProperties.getTestrailRun();
+-
+-    //create yandex api service client
+-    private static final YandexApiServiceClient yandexApiServiceClient = YandexApiServiceGenerator.createService();
+-
+-    //get webdriver properties
+-    private static final WebDriverProperties webDriverProperties = new WebDriverProperties();
+-    private static final String SCREENSHOT_PATH = webDriverProperties.getScreenshotPath();
+-
+-    private static final Logger LOGGER = LoggerFactory.getLogger(TestListener.class);
+-
+-    /**
+-     * Invoked each time before a test will be invoked.
+-     *
+-     * @param result the partially filled {@link ITestResult}
+-     */
+-    @Override
+-    public void onTestStart(ITestResult result) {
+-        LOGGER.info("TEST '{}' EXECUTION STARTED", result.getTestContext().getName());
+-    }
+-
+-    /**
+-     * Invoked each time a test succeeds.
+-     *
+-     * @param result {@link ITestResult} containing information about the run test
+-     */
+-    @Override
+-    public void onTestSuccess(ITestResult result) {
+-        TestRail apiCall = new TestRail();
+-        String[] caseIds = result.getMethod().getConstructorOrMethod().getMethod().getAnnotation(Test.class)
+-                .testName()
+-                .split(",");
+-        //adding pass result to TestRail
+-        try {
+-            apiCall.setCaseResult(caseIds, TESTRAIL_RUN, false, "", "");
+-            LOGGER.info("TEST '{}' PASSED", result.getMethod().getMethodName());
+-        } catch (Exception e) {
+-            LOGGER.error(e.getMessage());
+-        }
+-    }
+-
+-    /**
+-     * Invoked each time a test fails.
+-     *
+-     * @param result {@link ITestResult} containing information about the run test
+-     */
+-    @Override
+-    public void onTestFailure(ITestResult result) {
+-        browser = (Browser) result.getTestContext().getAttribute("browser");
+-        takeScreenshot(browser, result);
+-        LOGGER.info("TEST '{}' FAILED", result.getMethod().getMethodName());
+-    }
+-
+-    /**
+-     * Invoked each time a test skipped.
+-     *
+-     * @param result {@link ITestResult} containing information about the run test
+-     */
+-    @Override
+-    public void onTestSkipped(ITestResult result) {
+-        browser = (Browser) result.getTestContext().getAttribute("browser");
+-        takeScreenshot(browser, result);
+-        LOGGER.info("TEST '{}' SKIPPED", result.getMethod().getMethodName());
+-    }
+-
+-    /**
+-     * Invoked each time a method fails but has been annotated with successPercentage and this failure still keeps it
+-     * within the success percentage requested.
+-     *
+-     * @param result {@link ITestResult} containing information about the run test
+-     */
+-    @Override
+-    public void onTestFailedButWithinSuccessPercentage(ITestResult result) {
+-        //this method implementation is unnecessary
+-    }
+-
+-    /**
+-     * Invoked after the test class is instantiated and before any configuration method is called.
+-     */
+-    @Override
+-    public void onStart(ITestContext context) {
+-        //using onTestStart instead of this method
+-    }
+-
+-    /**
+-     * Invoked after all the tests have run and all their Configuration methods have been called.
+-     */
+-    @Override
+-    public void onFinish(ITestContext context) {
+-        LOGGER.info("TEST '{}' EXECUTION FINISHED", context.getName());
+-    }
+-
+-    private void takeScreenshot(Browser browser, ITestResult iTestResult) {
+-        TestRail apiCall = new TestRail();
+-        String[] caseIds = iTestResult.getMethod().getConstructorOrMethod().getMethod().getAnnotation(Test.class)
+-                .testName()
+-                .split(",");
+-        try {
+-            File scrFile = browser.takeScreenShot();
+-            Date date = new Date();
+-            String strDateFormat = "hh.mm.ss";
+-            DateFormat dateFormat = new SimpleDateFormat(strDateFormat);
+-            String timeStamp = dateFormat.format(date);
+-            String fileName = iTestResult.getMethod().getMethodName();
+-            File targetFile = new File(
+-                    SCREENSHOT_PATH + fileName + timeStamp + ".png");
+-            FileUtils.copyFile(scrFile, targetFile);
+-
+-            //save test result message to local variable
+-            String message = iTestResult.getThrowable().getMessage();
+-
+-            //upload screenshot to Yandex Drive and return screenshot link
+-            YandexApiUploadFilesServiceController yandexApiUploadFilesServiceController = new YandexApiUploadFilesServiceController();
+-            String uploadUrl = yandexApiUploadFilesServiceController
+-                    .getDownloadLink(yandexApiServiceClient, fileName + timeStamp, targetFile);
+-
+-            //add failed result to TestRail with screenshot link from Yandex Drive
+-            apiCall.setCaseResult(caseIds, TESTRAIL_RUN, true, uploadUrl, message);
+-
+-            LOGGER.info("Successfully captured a screenshot");
+-        } catch (Exception e) {
+-            LOGGER.error("Exception while taking screenshot '{}'", e.getMessage());
+-        }
+-    }
+-}
+Index: src/main/java/io/sibur/uiautotests/testbase/TestSuite.java
+===================================================================
+--- src/main/java/io/sibur/uiautotests/testbase/TestSuite.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
++++ src/main/java/io/sibur/uiautotests/testbase/TestSuite.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
+@@ -1,39 +0,0 @@
+-package io.sibur.uiautotests.testbase;
+-
+-import static io.sibur.uiautotests.browsers.BrowserFactory.getBrowser;
+-
+-import io.sibur.uiautotests.browsers.Browser;
+-import java.net.MalformedURLException;
+-import org.testng.ITestContext;
+-import org.testng.annotations.AfterMethod;
+-import org.testng.annotations.BeforeMethod;
+-import org.testng.annotations.Listeners;
+-
+-/**
+- * This is the Base class for tests
+- */
+-@Listeners(TestListener.class)
+-public abstract class TestSuite {
+-
+-    protected Browser browser;
+-
+-    /**
+-     * Initialize browser and maximize browser window before test executed
+-     *
+-     * @param context {@link ITestContext} to set browser attribute
+-     */
+-    @BeforeMethod
+-    public void testInitialize(ITestContext context) throws MalformedURLException {
+-        browser = getBrowser();
+-        browser.maximize();
+-        context.setAttribute("browser", browser);
+-    }
+-
+-    /**
+-     * Quit driver after test executed
+-     */
+-    @AfterMethod
+-    public void disposeWebdriver() {
+-        browser.dispose();
+-    }
+-}
+Index: src/main/java/io/sibur/uiautotests/testbase/YandexSearchDemoTest.java
+===================================================================
+--- src/main/java/io/sibur/uiautotests/testbase/YandexSearchDemoTest.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
++++ src/main/java/io/sibur/uiautotests/testbase/YandexSearchDemoTest.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
+@@ -1,17 +0,0 @@
+-package io.sibur.uiautotests.testbase;
+-
+-import io.sibur.uiautotests.pages.YandexSearchPage;
+-import io.sibur.uiautotests.pages.YandexSearchResultPage;
+-import org.testng.annotations.Test;
+-
+-public class YandexSearchDemoTest extends TestSuite {
+-
+-    @Test(retryAnalyzer = RetryAnalyzer.class, testName = "your TestRail testcase id")
+-    public void yandexSearchDemoTest(){
+-        browser.navigate("https://yandex.ru/");
+-        YandexSearchPage yandexSearchPage = new YandexSearchPage(browser);
+-        yandexSearchPage.isOnCurrentPage(YandexSearchPage.HOW, YandexSearchPage.USING);
+-        YandexSearchResultPage yandexSearchResultPage = yandexSearchPage.actions.searchByText("Сибур");
+-        yandexSearchResultPage.actions.checkSearchTopResult();
+-    }
+-}
+Index: pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- pom.xml	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
++++ pom.xml	(date 1566116247000)
+@@ -1,8 +1,8 @@
+ <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+-  <groupId>io.sibur.lsd</groupId>
+-  <artifactId>LsdTestkit</artifactId>
++  <groupId>uiautomation</groupId>
++  <artifactId>UiAutomationTestkit</artifactId>
+   <version>1.0-SNAPSHOT</version>
+   <packaging>jar</packaging>
+ 
+Index: src/main/java/testrail/APIClient.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/testrail/APIClient.java	(revision 12183dc3232721c524ad66cf9b9c6a4f06a82da4)
++++ src/main/java/testrail/APIClient.java	(date 1566115239000)
+@@ -10,17 +10,14 @@
+ 
+ package testrail;
+ 
+-import java.io.BufferedReader;
+-import java.io.IOException;
+-import java.io.InputStream;
+-import java.io.InputStreamReader;
+-import java.io.OutputStream;
++import org.json.simple.JSONObject;
++import org.json.simple.JSONValue;
++
++import java.io.*;
+ import java.net.HttpURLConnection;
+ import java.net.URL;
+ import java.nio.charset.StandardCharsets;
+ import java.util.Base64;
+-import org.json.simple.JSONObject;
+-import org.json.simple.JSONValue;
+ 
+ public class APIClient {
+     private String user;

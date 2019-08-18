@@ -1,8 +1,8 @@
-package io.sibur.uiautotests.pageactions;
+package ui.autotests.pageactions;
 
-import io.sibur.uiautotests.browsers.Browser;
-import io.sibur.uiautotests.pages.YandexSearchPage;
-import io.sibur.uiautotests.pages.YandexSearchResultPage;
+import ui.autotests.browsers.Browser;
+import ui.autotests.pages.YandexSearchPage;
+import ui.autotests.pages.YandexSearchResultPage;
 
 /**
  * This class implements methods on Yandex search page

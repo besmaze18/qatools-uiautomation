@@ -1,7 +1,7 @@
-package io.sibur.uiautotests.browsers;
+package ui.autotests.browsers;
 
-import io.sibur.uiautotests.awaiter.AwaiterByVisibility;
-import io.sibur.uiautotests.pages.PageBase;
+import ui.autotests.awaiter.AwaiterByVisibility;
+import ui.autotests.pages.PageBase;
 import java.io.File;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;

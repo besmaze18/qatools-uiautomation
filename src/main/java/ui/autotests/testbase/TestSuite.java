@@ -1,8 +1,8 @@
-package io.sibur.uiautotests.testbase;
+package ui.autotests.testbase;
 
-import static io.sibur.uiautotests.browsers.BrowserFactory.getBrowser;
+import static ui.autotests.browsers.BrowserFactory.getBrowser;
 
-import io.sibur.uiautotests.browsers.Browser;
+import ui.autotests.browsers.Browser;
 import java.net.MalformedURLException;
 import org.testng.ITestContext;
 import org.testng.annotations.AfterMethod;
