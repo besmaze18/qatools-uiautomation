@@ -1,12 +1,12 @@
 package ui.autotests.pages;
 
-import static org.openqa.selenium.support.How.XPATH;
-
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.How;
 import ui.autotests.browsers.Browser;
 import ui.autotests.customelements.ListElement;
 import ui.autotests.pageactions.YandexSearchResultPageActions;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.How;
+
+import static org.openqa.selenium.support.How.XPATH;
 
 /**
  *  * This class describes Yandex Search Results Page elements

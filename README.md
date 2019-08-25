@@ -6,8 +6,8 @@
 
 ```
 <dependency>
-      <groupId>io.sibur.lsd</groupId>
-      <artifactId>LsdTestkit</artifactId>
+      <groupId>uiautomation</groupId>
+      <artifactId>UiAutomationTestkit</artifactId>
       <version>1.0-SNAPSHOT</version>
 </dependency>
 ```
