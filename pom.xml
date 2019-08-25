@@ -200,6 +200,14 @@
     </plugins>
   </build>
 
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>GitHub batabaev18 Apache Maven Packages</name>
+      <url>https://maven.pkg.github.com/batabaev18/ui-automation-testkit</url>
+    </repository>
+  </distributionManagement>
+
   <!-- profiles -->
   <profiles>
     <!-- browsers -->
