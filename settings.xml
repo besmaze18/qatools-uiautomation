@@ -27,10 +27,5 @@
     </profiles>
 
     <servers>
-        <server>
-            <id>github</id>
-            <username>besmaze18</username>
-            <password>mazemist18</password>
-        </server>
     </servers>
 </settings>
