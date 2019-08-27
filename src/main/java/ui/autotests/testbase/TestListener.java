@@ -1,11 +1,5 @@
 package ui.autotests.testbase;
 
-import ui.autotests.browsers.Browser;
-import ui.autotests.browsers.WebDriverProperties;
-import java.io.File;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +13,13 @@ import testrail.TestRailProperties;
 import testrail.yandexdrive.YandexApiServiceClient;
 import testrail.yandexdrive.YandexApiServiceGenerator;
 import testrail.yandexdrive.YandexApiUploadFilesServiceController;
+import ui.autotests.browsers.Browser;
+import ui.autotests.browsers.WebDriverProperties;
+
+import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * This class implements listener for test running

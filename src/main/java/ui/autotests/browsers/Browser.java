@@ -1,21 +1,16 @@
 package ui.autotests.browsers;
 
-import ui.autotests.awaiter.AwaiterByVisibility;
-import ui.autotests.pages.PageBase;
-import java.io.File;
-import org.openqa.selenium.Alert;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.How;
 import org.openqa.selenium.support.PageFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.yandex.qatools.htmlelements.loader.decorator.HtmlElementDecorator;
 import ru.yandex.qatools.htmlelements.loader.decorator.HtmlElementLocatorFactory;
+import ui.autotests.awaiter.AwaiterByVisibility;
+import ui.autotests.pages.PageBase;
+
+import java.io.File;
 
 /**
  * This class encapsulates a {@link WebDriver} methods.
@@ -97,6 +92,22 @@ public class Browser {
     public void switchTo() {
         logger.trace("Switching to other frame");
         driver.switchTo();
+    }
+
+    /**
+     * Switch frame by id.
+     */
+    public void switchToFramebyId(int id) {
+        logger.trace("Switching to other frame");
+        driver.switchTo().frame(id);
+    }
+
+    /**
+     * Switch frame by active element.
+     */
+    public void switchToFrameByActiveElement() {
+        logger.trace("Switching to other frame");
+        driver.switchTo().activeElement();
     }
 
     /**
