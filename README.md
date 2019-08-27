@@ -1,4 +1,4 @@
-# lsd-testkit
+# ui-automation-testkit
 
 # Подключение зависимостей
 
