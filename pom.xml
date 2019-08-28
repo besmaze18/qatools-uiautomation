@@ -205,7 +205,7 @@
         <artifactId>site-maven-plugin</artifactId>
         <version>0.12</version>
         <configuration>
-          <message>Creating site for UiAutomationTestkit.1.0-SNAPSHOT}</message>
+          <message>Creating site for UiAutomationTestkit.2.0-SNAPSHOT}</message>
         </configuration>
         <executions>
           <execution>
