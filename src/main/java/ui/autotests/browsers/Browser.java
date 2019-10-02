@@ -144,7 +144,7 @@ public class Browser {
      */
     public void scrollTo(int xPosition, int yPosition) {
         JavascriptExecutor javascriptExecutor = (JavascriptExecutor) driver;
-        String js = "window.scrollTo({xPosition}, {yPosition})";
+        String js = String.format("window.scrollTo(%x, %d)", xPosition, yPosition);
         javascriptExecutor.executeScript(js);
     }
 
@@ -154,7 +154,6 @@ public class Browser {
      * @param element The WebElement scroll to.
      */
     public void scrollToView(WebElement element) {
-
         scrollTo(element.getLocation().x, element.getLocation().y - 100);
     }
 
