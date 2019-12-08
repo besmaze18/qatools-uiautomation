@@ -18,6 +18,6 @@ public class YandexSearchResultPageActions extends YandexMainPageActions<YandexS
     public void checkSearchTopResult(){
         WebElement searchTopResult = page.searchResultList.getElementByNumber("li", 0);
         WebElement urlText = searchTopResult.findElement(By.cssSelector("div.organic__url-text"));
-        Assert.assertTrue(urlText.getText().contains("СИБУР"), "Search top result is incorrect");
+        Assert.assertTrue(urlText.getText().contains("google"), "Search top result is incorrect");
     }
 }

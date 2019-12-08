@@ -11,7 +11,7 @@ public class YandexSearchDemoTest extends TestSuite {
         browser.navigate("https://yandex.ru/");
         YandexSearchPage yandexSearchPage = new YandexSearchPage(browser);
         yandexSearchPage.isOnCurrentPage(YandexSearchPage.HOW, YandexSearchPage.USING);
-        YandexSearchResultPage yandexSearchResultPage = yandexSearchPage.actions.searchByText("Сибур");
+        YandexSearchResultPage yandexSearchResultPage = yandexSearchPage.actions.searchByText("google");
         yandexSearchResultPage.actions.checkSearchTopResult();
     }
 }
