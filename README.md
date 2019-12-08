@@ -1,32 +1,32 @@
-# ui-automation-testkit
+# qatools-uiautomation
 
-# Подключение зависимостей
+# Dependency Connection
 
-Чтобы использовать библиотеку Testkit необходимо создать простой maven-проект. После этого добавить в зависимости свежую версию библиотеки:
+To use Testkit library create maven-project. Than add last version as maven dependency:
 
 ```
 <dependency>
-      <groupId>uiautomation</groupId>
-      <artifactId>UiAutomationTestkit</artifactId>
+      <groupId>qatools-uiautomation</groupId>
+      <artifactId>QaToolsUiAutomation</artifactId>
       <version>1.0-SNAPSHOT</version>
 </dependency>
 ```
 
 
-Выполните команду mvn clean compile, чтобы проверить, что ваш проект компилируется.
+Nest run mvn clean compile.
 
-# Краткое описание
+# Definition
 
-Данный фреймворк написан с использованием Yandex HtmlElements, но в дополнение, позволяет начинать писать тесты сразу, без описания логики взаимодействия с браузерами, test listener'ов и базового Test suite. 
-Так же, реализована интеграция с TestRail: 
-Запись результата выполненного теста и сохранения скриншота (в случае упавших тестов) в интерфейс TestRail (по testrun id и test case id).
-Для сохранения скриншотов используется интеграция с YandexDrive (сохранеие скриншота на диске и передача ссылки на файл в TestRail).
-В качестве тестового фреймворка используется TestNG.
+This framework uses Yandex HtmlElements and allows you to develop tests without setting up additional logic. 
+Framework has TestRail integration: 
+The result and screenshot are saved using testrailid and testrunid.
+For uploading screenshots we are using Yandex Drive and passing links to TestRail test case.
+Fro testing framework we are using TestNG.
 
-# Пример использования Testkit
+# Testkit using example
 
-В качестве примера возьмем главную страницу Яндекса (http://www.yandex.ru). 
-Для начала опишем простой блок элементов, например поисковую строку:
+Let's use Yandex main page as example (http://www.yandex.com). 
+You can see block of elements below:
 
 ```
 @Name("Search Block")
@@ -41,8 +41,8 @@ public class SearchBlock extends HtmlElement {
 }
 ```
 
-Этот класс описывает структуру поисковой строки. 
-Дальше необходимо создать базовый класс YandexMainPage, который наследуется от PageBase и содержит поисковой блок:
+This class contains search elements. 
+Let's add yandex base page class YandexMainPage inherited from PageBase and contains search block:
 
 ```
 public abstract class YandexMainPage extends PageBase{
@@ -54,9 +54,9 @@ public abstract class YandexMainPage extends PageBase{
 }
 ```
 
-Далее, все классы страниц проекта буду наследоваться от YandexMainPage.
+All the page classes should be inherited from YandexMainPage.
 
-Опишем поисковую страницу:
+See search page class below:
 
 ```
 public class YandexSearchPage extends YandexMainPage {
@@ -76,10 +76,10 @@ public class YandexSearchPage extends YandexMainPage {
             "//div[contains(@class,'container__heap container__line')]"};
 }
 ```
-На странице отображаются параметры HOW и USING, данные параметры необходимы для идентификации страницы при вызове метода isOnCurrentPage(How how, String[] using).
-Метод isOnCurrentPage вызывается при переходе со страницы на страницу, проверяет наличие заданных элементов и ожидает их отобображение используя Javascript.
-Все действия с элементами страницы отображаются в отдельных классах (Page Actions).
-Для этого создаем базовый класс YandexMainPageActions:
+Parameters HOW and USING identifies the page on calling isOnCurrentPage(How how, String[] using) method.
+isOnCurrentPage awaits for elements availability using Javascript.
+All the web pages actions are separated from page classes to page action classes.
+YandexMainPageActions base page actions class:
 
 ```
 public class YandexMainPageActions<T extends PageBase> implements PageActionsBase {
@@ -95,7 +95,7 @@ public class YandexMainPageActions<T extends PageBase> implements PageActionsBas
 }
 ```
 
-Далее, наследуемся от созданного класса:
+All the page actions classes should be inherited from base class:
 
 ```
 public class YandexSearchPageActions extends YandexMainPageActions<YandexSearchPage> {
@@ -112,7 +112,7 @@ public class YandexSearchPageActions extends YandexMainPageActions<YandexSearchP
     }
 }
 ```
-Для того, чтобы проверить взаимодействие указанных выше классов создадим простенький тест для проверки поисковых результатов, в котором создим экземляр нашей страницы:
+Please see the test using created classes below:
 
 ```
 public class YandexSearchDemoTest extends TestSuite {
@@ -132,7 +132,7 @@ public class YandexSearchDemoTest extends TestSuite {
 }
 ```
 
-Для выбора браузера и способа его запуска и т.д. используется файл webdriver.properties
+For browser set up use webdriver.properties file
 
 ```
 isRemote=boolean parameter where "true" value is to running your browser using RemoteWebdriver, "false" is to run browser locally 
@@ -144,7 +144,7 @@ login=login for authorization in your tested app
 password=password for authorization in your tested app
 screenshotPath=local filepath for screenshots
 ```
-Задание параметров интеграции с TestRail testrail.properties файл: 
+For TestRail integration use testrail.properties file: 
 
 ```
 endPoint = TestRail URL, for example: https://sibur.testrail.io/
@@ -153,7 +153,7 @@ password = TestRail password
 testrailRun = TestRail testrun id
 ```
 
-Задание параметров интеграции с Yandex Drive yandexdrive.properties файл: 
+For Yandex Drive integration use yandexdrive.properties file (for saving screenshots and attaching links to TestRail): 
 
 ```
 baseUrl=https://cloud-api.yandex.net:443
