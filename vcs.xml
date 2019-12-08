@@ -14,6 +14,10 @@
           <option name="url" value="http://git.dtme.dev" />
           <option name="userName" value="batabaev" />
         </UrlAndUserName>
+        <UrlAndUserName>
+          <option name="url" value="https://git.dtme.dev/scm/qa/qatools-uiautomation.git" />
+          <option name="userName" value="" />
+        </UrlAndUserName>
       </list>
     </option>
     <option name="cloneParentDir" value="$USER_HOME$/Downloads" />
