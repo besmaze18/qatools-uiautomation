@@ -1,4 +1,4 @@
-# ui-automation-testkit
+# qatools-uiautomation
 
 # Dependency Connection
 
@@ -6,8 +6,8 @@ To use Testkit library create maven-project. Than add last version as maven depe
 
 ```
 <dependency>
-      <groupId>uiautomation</groupId>
-      <artifactId>UiAutomationTestkit</artifactId>
+      <groupId>qatools-uiautomation</groupId>
+      <artifactId>QaToolsUiAutomation</artifactId>
       <version>1.0-SNAPSHOT</version>
 </dependency>
 ```
