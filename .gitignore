@@ -169,3 +169,12 @@ gradle.properties
 local.properties
 application*.properties
 bootstrap.properties
+/debugger.xml
+/vcs.xml
+/colors.scheme.xml
+/markdown.xml
+/QaToolsUIAutomation.iml
+/studioFlags.xml
+/.idea/
+/_mac/
+/codestyles/
