@@ -178,3 +178,9 @@ bootstrap.properties
 /.idea/
 /_mac/
 /codestyles/
+/studioFlags.xml
+/editor.xml
+/debugger.xml
+/colors.scheme.xml
+/_mac/
+/codestyles/
