@@ -6,6 +6,30 @@
   <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
+  <name>UI Automation</name>
+  <description>UI Automation framework</description>
+  <url>https://github.com/besmaze18/qatools-uiautomation</url>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <url>git@github.com:besmaze18/qatools-uiautomation.git</url>
+    <connection>scm:git:git@github.com:besmaze18/qatools-uiautomation.git</connection>
+    <developerConnection>scm:git:git@github.com:besmaze18/qatools-uiautomation.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
+
+  <issueManagement>
+    <system>GitHub Issue Tracker</system>
+    <url>https://github.com/yandex-qatools/htmlelements/issues</url>
+  </issueManagement>
+
   <properties>
     <slf4j.version>1.7.25</slf4j.version>
     <logback.version>1.2.3</logback.version>
@@ -101,17 +125,18 @@
       <version>1.6</version>
     </dependency>
 
-      <dependency>
-          <groupId>org.seleniumhq.selenium</groupId>
-          <artifactId>selenium-support</artifactId>
-          <version>3.14.0</version>
-      </dependency>
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-support</artifactId>
+      <version>3.14.0</version>
+    </dependency>
 
     <dependency>
       <groupId>org.seleniumhq.selenium</groupId>
       <artifactId>selenium-remote-driver</artifactId>
       <version>3.14.0</version>
     </dependency>
+
     <dependency>
       <groupId>com.squareup.okhttp3</groupId>
       <artifactId>logging-interceptor</artifactId>
@@ -123,21 +148,24 @@
       <artifactId>okhttp</artifactId>
       <version>3.12.1</version>
     </dependency>
+
     <dependency>
       <groupId>com.squareup.okhttp3</groupId>
       <artifactId>okhttp-urlconnection</artifactId>
       <version>3.12.1</version>
     </dependency>
+
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
       <version>2.0.1</version>
     </dependency>
-      <dependency>
-          <groupId>org.json</groupId>
-          <artifactId>json</artifactId>
-          <version>20180813</version>
-      </dependency>
+
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>20180813</version>
+    </dependency>
 
     <dependency>
       <groupId>com.googlecode.json-simple</groupId>
@@ -175,6 +203,51 @@
     </testResources>
     <!-- plugins -->
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <encoding>${project.build.sourceEncoding}</encoding>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>2.5.3</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>3.2.1</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.1.1</version>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <configuration>
+              <source>${java.version}</source>
+              <doclint>none</doclint>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>

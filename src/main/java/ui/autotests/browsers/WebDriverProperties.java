@@ -34,6 +34,9 @@ public class WebDriverProperties {
     @Property("screenshotPath")
     private String screenshotPath;
 
+    @Property("retryCount")
+    private int retryCount;
+
     public WebDriverProperties() {
 
         PropertyLoader.populate(this);
@@ -109,5 +112,14 @@ public class WebDriverProperties {
      */
     public String getScreenshotPath() {
         return screenshotPath;
+    }
+
+    /**
+     * Get retry count from webdriver.properties file
+     *
+     * @return int value of retries for the failed tests
+     */
+    public int getRetryCount() {
+        return retryCount;
     }
 }
