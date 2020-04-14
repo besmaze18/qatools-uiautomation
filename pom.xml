@@ -21,7 +21,7 @@
     <url>git@github.com:besmaze18/qatools-uiautomation.git</url>
     <connection>scm:git:git@github.com:besmaze18/qatools-uiautomation.git</connection>
     <developerConnection>scm:git:git@github.com:besmaze18/qatools-uiautomation.git</developerConnection>
-    <tag>1.0.3</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <properties>
