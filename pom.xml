@@ -429,6 +429,7 @@
         <activeByDefault>true</activeByDefault>
       </activation>
     </profile>
+
     <profile>
       <id>grid</id>
       <properties>
